@@ -1,9 +1,10 @@
 package edu.vanderbilt.iscope.util;
-
+/*
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.util.*;
+
 
 import org.gibello.zql.ZDelete;
 import org.gibello.zql.ZExp;
@@ -17,9 +18,11 @@ import org.gibello.zql.ZUpdate;
 import org.gibello.zql.ZqlParser;
 
 import edu.vanderbilt.iscope.model.*;
+//*/
 
+@Deprecated
 public class Parser {
-	
+/*	
 	public boolean printOn = false;
 	private ZqlParser zql;
 	
@@ -76,7 +79,7 @@ public class Parser {
 	 * parse a query statement into a SQLQuery obj
 	 * @param queryStatement	"select * from ...."
 	 * @param sqlQuery
-	 */
+	 *//*
 	public SQLQuery parseQuery(String queryStatement) throws Exception {
 		SQLQuery sqlQuery = new SQLQuery();		
 		//System.out.println(queryStatement);
@@ -88,12 +91,12 @@ public class Parser {
 			sqlQuery.setType(SQLQuery.SQL_QUERY_TYPE_SELECT);
 			ZQuery sel = (ZQuery)zst;
 			
-			/* get table names */
+			//get table names
 			Vector<ZFromItem> ts = sel.getFrom();
 			for(ZFromItem zfi : ts) {
 				sqlQuery.getTables().add(zfi.toString());
 			}
-			/* fields */
+			// fields
 			Vector<ZSelectItem> fs = sel.getSelect();
 			for(ZSelectItem zsi : fs) {
 				String fieldStr = zsi.toString();
@@ -115,10 +118,10 @@ public class Parser {
 		} else if(zst instanceof ZInsert) {
 			sqlQuery.setType(SQLQuery.SQL_QUERY_TYPE_INSERT);
 			ZInsert ins = (ZInsert)zst;
-			/* get insert objective */
+			//get insert objective
 			String table = ins.getTable();
 			sqlQuery.getTables().add(table);
-			/* field and value */
+			//field and value
 			Vector<String> columns = ins.getColumns();
 			Vector<ZExp> values = ins.getValues();
 			for(int i=0; i<columns.size(); i++) {
@@ -130,10 +133,10 @@ public class Parser {
 		} else if(zst instanceof ZUpdate) {
 			sqlQuery.setType(SQLQuery.SQL_QUERY_TYPE_UPDATE);
 			ZUpdate upd = (ZUpdate)zst;
-			/* table */
+			//table
 			String table = upd.getTable();
 			sqlQuery.getTables().add(table);
-			/* field and values */
+			//field and values
 			Hashtable<String, ZExp> set = upd.getSet();
 			Iterator<String> it = set.keySet().iterator();
 			while (it.hasNext()){
@@ -167,7 +170,7 @@ public class Parser {
 	 * parse "where ..."
 	 * @param zp
 	 * @param sqlQuery
-	 */
+	 *//*
 	private void parseWhereClause(ZExp zp, SQLQuery sqlQuery){
 		if (zp instanceof ZExpression) {
 			ZExpression zex = (ZExpression) zp;
@@ -271,7 +274,7 @@ public class Parser {
 	 * pre filter the query, to remove some uncared sequence
 	 * @param query
 	 * @return
-	 */
+	 *//*
 	public String filter(String query){
 		query = query.replaceAll("`", "");
 		
@@ -351,10 +354,10 @@ public class Parser {
 			index1 = query.indexOf("LEFT JOIN"); 
 			int index3 = query.indexOf("WHERE");
 			if(index3 != -1) {
-				/* query contains "where" */
+				//query contains "where"
 				query = query.substring(0, index1) + query.substring(index3);
 			} else {
-				/* do not care about the left words */
+				//do not care about the left words
 				query = query.substring(0, index1-1) + ";";
 			}
 		}
@@ -365,10 +368,10 @@ public class Parser {
 			int index1 = query.indexOf("INNER JOIN");
 			int index2 = query.indexOf("WHERE");
 			if(index2 != -1) {
-				/* query contains "where" */
+				//query contains "where"
 				query = query.substring(0, index1) + query.substring(index2);
 			} else {
-				/* do not care about the left words */
+				//do not care about the left words
 				query = query.substring(0, index1-1) + ";";
 			}
 		}
@@ -441,7 +444,7 @@ public class Parser {
 		query = query.replace("INSERT INTO events VALUES", "INSERT INTO events (event, hour, minute, ampm, hour_end, minute_end, ampm_end, " +
 				"month, day, year, month_end, day_end, year_end, month_show, day_show, year_show, location, email, phone, link, " +
 				"link_name, description, html) VALUES");
-		//*/
+		//
 		return query;
 	}
 	
@@ -451,7 +454,6 @@ public class Parser {
 		int index2 = query.substring(index1 + 1).indexOf("AS");
 		return query.substring(0, index1) + query.substring(index1 + index2 + 3);
 	}
-	*/
 	
 	
 	private String removeASPart(String methodName, String query) {
@@ -479,10 +481,10 @@ public class Parser {
 	 * 
 	 * @param session
 	 * @return
-	 */
+	 *//*
 	public HashMap<String, String> parseSession(String session) {
 		HashMap<String, String> sessionMap = new HashMap<String, String>();
-		/* check null */
+		// check null
 //		System.out.println(session);
 		if(session==null || session.trim().equals("") || session.equals("null")) {
 			return sessionMap;
@@ -570,5 +572,5 @@ public class Parser {
 			}
 			System.out.println("\n------------------------------\n");
 		}
-	}
+	}//*/
 }
