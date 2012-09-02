@@ -213,8 +213,9 @@ TOKEN: /* SQL Keywords. prefixed with K_ to avoid name clashes */
 |   <K_TRUNCATE:"TRUNCATE">
 |   <K_DISTINCT:"DISTINCT">
 |   <K_INTERSECT:"INTERSECT">
+| 	<K_BINARY:"BINARY">
 /* Time interval keywords */
-|	<K_INTERVAL:"INTERVAL" >
+|	<K_INTERVAL:"INTERVAL">
 /*
 |	<K_MICROSECOND:"MICROSECOND">
 |	<K_SECOND:"SECOND">
@@ -457,7 +458,7 @@ Column Column():
 	String name3 = null;
 }
 {
-    // [schema.][tabella.]colonna
+    // [schema.][table.]column
     name1=RelObjectName() [ "." name2=RelObjectName() ["." name3=RelObjectName()]]
     {
     	String colName = null;
@@ -1429,9 +1430,13 @@ Expression PrimaryExpression():
 	
 	| LOOKAHEAD([	"+" | "-"] <S_INTEGER>)  	[	"+" | "-" { tmp = "-"; }]  token=<S_INTEGER> { retval = new LongValue(tmp+token.image); }
 
-	| LOOKAHEAD(2) 	[ "+" | "-" { isInverse = true; }] retval=Column() 
+	| LOOKAHEAD(3) < K_BINARY > [ "+" | "-" { isInverse = true; }] retval=Column() //Hook for BINARY col = 'string'
+
+	| LOOKAHEAD(2) [ "+" | "-" { isInverse = true; }] retval=Column() 
 
 	| LOOKAHEAD(2) [ "+" | "-" { isInverse = true; }]  "(" retval=PrimaryExpression() ")" {retval = new Parenthesis(retval); }
+
+	| LOOKAHEAD(2) < K_BINARY > token = < S_CHAR_LITERAL > { retval = new StringValue(token.image); } //Hook for BINARY 'string'
 
 	| token=<S_CHAR_LITERAL> { retval = new StringValue(token.image); }
 
