@@ -18,9 +18,9 @@ import java.util.HashMap;
 import java.util.StringTokenizer;
 
 import edu.vanderbilt.iscope.model.QueryMessage;
-import edu.vanderbilt.iscope.util.SessionInspector;
+import edu.vanderbilt.webtest.util.SessionInspector;
 
-public class SqlLogger {
+public class SqlLoggerOld {
 	private static SessionInspector _inspector;
 	//private static String sqlLog = "/tmp/mysqld.sql";
 	private static String sqlLog = "/tmp/rtlog.sql";

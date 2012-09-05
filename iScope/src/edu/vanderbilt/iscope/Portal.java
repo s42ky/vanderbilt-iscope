@@ -11,10 +11,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import edu.vanderbilt.iscope.model.QueryMessage;
-import edu.vanderbilt.iscope.util.SessionInspector;
+import edu.vanderbilt.webtest.util.SessionInspector;
 /**
  * Servlet implementation class Portal
  */
+
+@Deprecated
 public class Portal extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	

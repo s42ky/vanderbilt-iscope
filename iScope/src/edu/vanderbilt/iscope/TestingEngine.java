@@ -17,26 +17,38 @@ import edu.vanderbilt.iscope.util.RequestGenerator;
 import edu.vanderbilt.iscope.util.SQLSymbolizer;
 import edu.vanderbilt.iscope.util.SessionController;
 import edu.vanderbilt.iscope.util.TestOracle;
+import edu.vanderbilt.webtest.util.SessionInspector;
+import edu.vanderbilt.webtest.util.SqlLogger;
+
+
 
 public class TestingEngine {
 	
 	public TestingEngine(String dir, String proj, String url) {
+		try {
+			configure(dir, proj, url);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	private void configure(String dir, String proj, String url) throws Exception {
 		workingDir = dir;
 		project = proj;
 		host = url;
 		cacheDir = workingDir + project + "/cache/";
-		try {
-			new File(cacheDir).mkdirs();
-        	bw = new BufferedWriter(new FileWriter(workingDir + project + "/report", true));
-			_oracle = new TestOracle(workingDir, project);
-			_controller = new SessionController();
-			_generator = new RequestGenerator(host, project);
-			_symbolizer = new SQLSymbolizer(workingDir, project);
-			_oracle.loadTestProfiles();
-			_symbolizer.loadSigProfile();
-		} catch (Exception e){
-			e.printStackTrace();
-		}
+
+		new File(cacheDir).mkdirs();
+    	bw = new BufferedWriter(new FileWriter(workingDir + project + "/report", true));
+		_oracle = new TestOracle(workingDir, project);
+		_controller = new SessionController();
+		_generator = new RequestGenerator(host, project);
+		_symbolizer = new SQLSymbolizer(workingDir, project);
+		_oracle.loadTestProfiles();
+		_symbolizer.loadSigProfile();
+		_sqlLogger  = new SqlLogger(Configuration.projectDir);
+		_inspector = new SessionInspector();
 	}
 	
 	private String workingDir;
@@ -66,8 +78,11 @@ public class TestingEngine {
 	private SessionController _controller;
 	private RequestGenerator _generator;
 	private SQLSymbolizer _symbolizer;
+	private SessionInspector _inspector;
 	
 	private BufferedWriter bw;
+	
+	SqlLogger _sqlLogger;
 	
 	// maintain the set of query messages.
 	private static Vector<QueryMessage> messageSet = new Vector<QueryMessage>();
@@ -82,15 +97,30 @@ public class TestingEngine {
 			interaction_id ++;
 			request.write(new FileOutputStream(cacheDir+interaction_id+"-request"));
 			//System.out.println(request);
+
+			_sqlLogger.processRequest(request);
+			_sqlLogger.flushLog();
 			
-			//PROCESS REQUEST
+			String sid = _sqlLogger.getSID();
+			
+			//TODO Do we need to use session??
+			String session = "null";
+			if(sid!=null) {
+				//LOGGER.info("Inspecting Session ID: "+sid);
+				session = _inspector.inspect(sid);
+			} //else LOGGER.info("Null Session ID");
+			
+			String script = _sqlLogger.getLastScript();
+			if (script!=null && script.equals(Configuration.wwwroot+"test.php")) return;
 			
 			Response response = client.fetchResponse(request);
             response.flushContentStream();
             responseReceived(response);
             
-            //PROCESS RESPONSE
-            
+            Vector<String> queries = _sqlLogger.getQueriesLogged();
+            for(String query : queries) {
+            	addQueryMessage(new QueryMessage(query));
+            }
             
         } catch (Exception ioe) {
         	ioe.printStackTrace();
@@ -154,9 +184,14 @@ public class TestingEngine {
 		}
 	}
 	
+	public void run() { main(); }
 	
 	// MAIN function.
-	public void run() throws Exception {
+	public void main() {
+	try {
+		//TODO switch to using file-based configuration
+		configure(Configuration.loggingBaseDir, Configuration.project, Configuration.host);
+		
 		System.out.println("====Testing Start...====");
 		bw.write("====Testing Start...====\n");
 		submitRequest(_generator.constructBaseRequest());   // ping the app and get cookie/session id.
@@ -271,6 +306,9 @@ public class TestingEngine {
 		           "\nNumber of reported para: " + reported_para +
 		           "\nNumber of reported sess: " + reported_sess + "\n");
 		bw.close();
+	} catch(Exception e) {
+		e.printStackTrace();
+	}
 	}
 		
 	// End of current interaction: Evaluation.

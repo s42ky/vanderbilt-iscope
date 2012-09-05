@@ -23,20 +23,27 @@ import org.jdom.output.XMLOutputter;
 
 import edu.vanderbilt.iscope.model.SigProfile;
 import edu.vanderbilt.iscope.util.QueryParser;
-import edu.vanderbilt.iscope.util.Parser;
 import edu.vanderbilt.iscope.util.SQLSymbolizer;
 import edu.vanderbilt.iscope.util.StateConstructor;
 
 class ConstraintAnalyzer {
 	public static Logger LOGGER = Logger.getLogger(ConstraintAnalyzer.class.toString());
 	
+	public ConstraintAnalyzer(String dir, String proj) {
+		workingDir = dir;
+		project = proj;
+		traceDir = workingDir + project + "/";
+		_sigConstructor = new SQLSymbolizer(workingDir, project);
+		_stateConstructor = new StateConstructor();
+	}
+	
 	public static void main(String args[]) {
 		BasicConfigurator.configure(new ConsoleAppender(new PatternLayout("%-5p %35.35C{2}: %m%n")));
-		LOGGER.getRootLogger().setLevel(Level.WARN);
+		Logger.getRootLogger().setLevel(Level.WARN);
 		
 		//String dir = "C:/Users/xiaowei/Desktop/acsac/";
-		String dir = Portal.workingDir;
-		String project = Portal.project;
+		String dir = Configuration.projectDir;
+		String project = Configuration.project;
 		
 		ConstraintAnalyzer _analyzer = new ConstraintAnalyzer(dir, project);
 		try {
@@ -58,14 +65,6 @@ class ConstraintAnalyzer {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
-	
-	public ConstraintAnalyzer(String dir, String proj) {
-		workingDir = dir;
-		project = proj;
-		traceDir = workingDir + project + "/";
-		_sigConstructor = new SQLSymbolizer(workingDir, project);
-		_stateConstructor = new StateConstructor();
 	}
 	
 	private String workingDir;
@@ -154,7 +153,7 @@ class ConstraintAnalyzer {
 				String script = st.nextToken();     // script
 				
 				if (script.equals("") || 
-						!(script.contains(Portal.wwwroot) || script.contains(Portal.host)))  {
+						!(script.contains(Configuration.wwwroot) || script.contains(Configuration.host)))  {
 					
 					LOGGER.warn("Script '"+script+"' not valid for line '"+line+"' . Aborting.");
 					continue;
@@ -203,9 +202,9 @@ class ConstraintAnalyzer {
 		HashSet<String> requestKeySet = new HashSet<String>();
 		
 		String line;
-		int lineCount = 0;
+		//int lineCount = 0;
 		while ((line=br.readLine())!=null){
-			lineCount ++;
+			//lineCount ++;
 			
 			StringTokenizer st = new StringTokenizer(line, "[]");
 			if(!st.hasMoreTokens()) continue;
@@ -261,7 +260,7 @@ class ConstraintAnalyzer {
 				st.nextToken();                     // [SCRIPT]
 				String script = st.nextToken();     // script
 				if (script.equals("") || 
-						!(script.contains(Portal.wwwroot) || script.contains(Portal.host)))  continue;
+						!(script.contains(Configuration.wwwroot) || script.contains(Configuration.host)))  continue;
 				
 				st.nextToken();                     // [SESSION]
 				String sessionVars = st.nextToken();    // session		
